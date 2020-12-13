@@ -148,14 +148,13 @@ console.log(fileContent);   // logs the content of file to the console.
 >
 >const myEmitter = new EventEmitter();
 >
->myEmitter.on("newEvent"),()=>{
->   console.log("New event has occured"):
+>myEmitter.on("newEvent",()=>{
+>  console.log("New event has occured");
 >});
 >
->myEmitter.on("newEvent"), argument =>{
->   console.log("New event has occured ${argument}"):
+>myEmitter.on("newEvent", argument =>{
+>  console.log(`New event has occured ${argument}`);
 >});
 >
->myEmitter.emit("newEvent");
->myEmitter.emit("newEvent",Argument);
+>myEmitter.emit("newEvent",90);
 >```
