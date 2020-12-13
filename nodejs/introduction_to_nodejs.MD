@@ -72,7 +72,7 @@ console.log(fileContent);   // logs the content of file to the console.
 ```
 
 ># How Node.js works? 
->## Architecture
+>## **Architecture**
 >![Architecture](./images/nodejs_architecture.png)
 >
 > * Node runtime has several dependencies
@@ -86,7 +86,7 @@ console.log(fileContent);   // logs the content of file to the console.
 > * V8 itself, also uses C++ code besides JavaScript.
 > * Node does actually not only rely on V8 and libuv, but also on http-parser for parsing http, c-ares or something like that for some DNS request stuff, OpenSSL for keptography, and also zlib for compression.
 > ---
->## Process and Threads
+>## **Process and Threads**
 >![process_and_threads](./images/process_and_threads.png)
 >
 >   * When the program is initialized, all the top level code is executed,
@@ -104,7 +104,7 @@ console.log(fileContent);   // logs the content of file to the console.
 >>### **Important note:**
 >>`The event loop can then automatically offload heavy tasks to the thread pool. And all this happens automatically behind the scenes. It's not us developers who decide what goes to thread pool and what doesn't. Now, the expensive tasks that do get offloaded are all operations dealing with files, everything related to cryptography, like caching passwords, then all compression stuff, and also DNS lookups, which basically matches web domains to their corresponding real IP addresses. So this is the stuff that would most easily block the main thread. And so, Node takes care of automatically offloading them into the thread pool, where they don't block our event loop. And that is the most importan`
 > ---
->## Event Loop
+>## **Event Loop**
 >![process_and_threads](./images/eventloop1.png)
 >   * Node.js is all built around **`callback functions`**.
 >       * The functions that are called as soon as some work is finished some time in the future.
@@ -113,7 +113,7 @@ console.log(fileContent);   // logs the content of file to the console.
 > 
 >> `So, again, the event loop receives events each time something important happens, and will then call the necessary callbacks such as we define in our code. So, in summary, it's usually said that the event loop does the orchestration, which simply means that it receives events, calls their callback functions, and offloads the more expensive tasks to the thread pool.`
 >
->### Event loop in detail
+>### **Event loop in detail**
 >![process_and_threads](./images/eventloop2.png)
 >   * Event loop has mainly 4 phases
 >       * Each phase of event loop has it's own call back queques.
@@ -132,7 +132,7 @@ console.log(fileContent);   // logs the content of file to the console.
 >
 >> `nextTick()` is a function that we can use when we really, really need to execute a certain callback right after the current event loop phase. It's a bit similar to setImmediate, with the difference that setImmediate only runs after the I/O callback phase.
 >---
->## Event Driven Archotecture
+>## **Event Driven Archotecture**
 >![process_and_threads](./images/event_driven_architecture.png)
 >
 >   * In Node, there are certain objects called event emitters that emit named events
@@ -158,3 +158,138 @@ console.log(fileContent);   // logs the content of file to the console.
 >
 >myEmitter.emit("newEvent",90);
 >```
+>---
+>## **Streams**
+>   * Streams are yet another fundamental concept in Node.JS.
+>   * With streams we can process means read and write data piece by piece without completing the whole read or write operation. Therefore we don't have to keep all the data in memory to do these operations.
+>   * For example, when we read a file using streams, we read part of the data, do something with it, then free our memory, and repeat this until the entire file
+>   * Nextflix and Youtube are best examples for streams. They stream videos using similar principle.
+>
+> ![stream](./images/streams.png)
+>   *   Streams re instances of EventEmitter class hence they emit and listen to named events.
+>
+>### **How to stream**
+>```javascript
+>    const fs = require('fs');
+>    const server = require('http').createServer();
+>
+>    server.on("request",(req,res) => {
+>       
+>        // Read file and sent to response using stream
+>        
+>        // const  readable = fs.createReadStream("introduction_to_nodejs.MD");
+>        // readable.on("data", chunk => {
+>        //     res.write(chukc);
+>        // });
+>        // readable.on("end", () => {
+>        //     res.end();
+>        // });        
+>        // readable.on("error", () => {
+>        //     res.statusCode = 500;
+>        //     res.end("Some error occured while reading the file.");
+>        // });        
+>        
+>        
+>        // Most efficeint way to write:
+>        const  readable = fs.createReadStream("introduction_to_nodejs.MD");
+>        readable.pipe(res);
+>        readable.on("error",()=>{
+>            res.statusCode = 500;
+>            res.end("Some error occured while reading the file.");
+>        });
+>    });
+>
+>    server.listen(8000,'0.0.0.0',() => {
+>        console.log("Server listening on 8000");
+>    });
+>```
+>---
+>## **Module system**
+>### Commonjs module system
+>   * In node we use common js module system.
+>
+>### Steps involved in loading a module:
+>
+>![require mocule](./images/module1.png)
+>#### **Step 1**: Resolving and Loading   
+>   * It will first try to load a core module with that name.
+>       * example, the http module
+>       * It will automatically find a path to that module and load it.
+>   * If the path starts with a dot, or two dots, it means that it's a developer module.
+>       * node will try to load that file, but if there is no file with that name, then it will look for a folder instead. And will load `index.js` in that folder.
+>   * And finally, if the required module is neither a core module, nor a developer module, node will assume it's a module from npm.
+>       * These third party modules are stored in a node module folder, so node will step into that folder and try to find a module there and then load it
+>#### **Step 2**: WRAPPING
+>   * After the module is loaded, the module's code is wrapped into a special function which will give us access to a couple of special objects.
+>   * Node does actually not directly the execute the code that we rewrite into a file, but instead, the wrapper function that will contain our code in it's body.
+>   * It also passes the exports, require module, file name, and dir objects into it.
+>       * So that is why in every module we automatically have access to stuff like the require function. 
+>       * So these are basically like global variables that are injected into each and every module.
+>```javascript
+>   // wrapper function looks something like below:
+>   (function (exports,require,module,__filename,__dirname){
+>       // module code goes here 
+>   });
+>```
+>#### **Step 3**: EXECUTION
+>   * Next up, the code in the module, or to be more precise, in the module's wrapper function, actually gets executed by the NODE.JS runtime.
+>#### **Step 4**: RETURNING EXPORTS
+>   * Now, it's time for the require function to actually return something.
+>   * And what it returns is the exports of the required module.
+>       * These exports are stored in the module.exportsobjects.
+>#### **Step 5**: CACHING
+>   * The last step is that modules are actually cached after the first time they are loaded.
+>   * What this means is that if you require the same module multiple times, you will always get the same result.
+>   * And the code in the modules is actually only executed in the first call.
+>   * In subsequent calls, the result is simply retrieved from cache.
+>
+>#### **How to create module file and export and use it in a program :**
+>> ##### **Medthod 1**: when only one object is exported eg: A class. 
+>>> **testmodule.js**
+>>>```javascript
+>>>  class Calculator{
+>>>      add(a,b) {
+>>>          return a+b;
+>>>      }
+>>>      mul(a,b){
+>>>          return a*b;
+>>>      }
+>>>  }
+>>>  module.exports = Calculator;
+>>>```
+>>
+>>> **main.js**
+>>>```javascript
+>>>   const C = require('./testmodule');
+>>>   const calc = new C();      
+>>>   console.log(calc.add(7,5));
+>>>   console.log(calc.mul(7,5));
+>>>```
+>>
+>>> **Output**
+>>>```javascript
+>>> 12
+>>> 35
+>>>```
+>> ##### **Medthod 2**: when multiple objects are exported.
+>>> **testmodule.js**
+>>>```javascript
+>>> export.add = (a,b) => a + b;
+>>> export.mul = (a,b) => a * b;
+>>>```
+>>
+>>> **main.js**
+>>>```javascript
+>>>   const calc = require('./testmodule');
+>>>   console.log(calc.add(7,5));
+>>>   console.log(calc.mul(7,5));
+>>>```
+>>
+>>> **Output**
+>>>```javascript
+>>> 12
+>>> 35
+>>>```
+>>>.
+
+
