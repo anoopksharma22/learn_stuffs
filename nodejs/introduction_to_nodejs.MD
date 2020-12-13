@@ -49,3 +49,12 @@ Press Ctrl+C to abort current expression, Ctrl+D to exit the REPL
 >
 >1. Press tab twice to see all env varialble and node core modules
 >2. Type any name you got from previous step to find more detials about the moduel.
+>```javascript
+> // pressed tab twice 
+> >
+>Array                 ArrayBuffer           Atomics               BigInt                BigInt64Array         BigUint64Array        Boolean               Buffer
+>
+> > Array
+>[Function: Array]
+> >
+> ```
