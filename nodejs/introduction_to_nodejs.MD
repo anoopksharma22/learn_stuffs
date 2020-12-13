@@ -12,7 +12,7 @@
 >>5. Datastreaming apps like youtube and Netflix
 
 > **Not suitable for:**
->>1. Some super heavy server-side processing, like having image manipulations, video conversion, file compression or anything like that, all right.
+>>1. Some super heavy server-side processing, like having image manipulations, video conversion, file compression or anything like that.
 
 
 # How to install nodejs ?
