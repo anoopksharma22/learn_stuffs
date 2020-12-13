@@ -142,7 +142,7 @@ console.log(fileContent);   // logs the content of file to the console.
 >           * A file finishing to read.
 >   * These events can then be picked up by event listeners that we developers set up, which will fire off callback functions that are attached to each listener.
 >
->### **How to create own event emitter and use then**
+>### **How to create own event emitter and use them**
 >```javascript
 >const EventEmitter = require('events'); 
 >
