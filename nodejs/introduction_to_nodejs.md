@@ -9,7 +9,7 @@
 >>2. Node is perfect for building super fast, scalable data-intensive web applications.
 >>3. Building an API with a database behind it
 >>4. preferably a non-relational NoSQL database like MongoDB
->>5. Datastreaming apps like youtube and Netflix
+>>5. Data streaming apps like youtube and Netflix
 
 > **Not suitable for:**
 >>1. Some super heavy server-side processing, like having image manipulations, video conversion, file compression or anything like that.
@@ -45,10 +45,10 @@ Press Ctrl+C to abort current expression, Ctrl+D to exit the REPL
 ```
 >.exit
 ```
->Few tips and trics:
+>Few tips and tricks:
 >
->1. Press tab twice to see all env varialble and node core modules
->2. Type any name you got from previous step to find more detials about the moduel.
+>1. Press tab twice to see all env variable and node core modules
+>2. Type any name you got from previous step to find more details about the module.
 >```javascript
 > // pressed tab twice 
 > >
@@ -60,7 +60,7 @@ Press Ctrl+C to abort current expression, Ctrl+D to exit the REPL
 > ```
 
 # Using core modules
-> For example how to read a file usinf `fs` core module
+> For example how to read a file using `fs` core module
 ```javascript
 
 const fs = require('fs'); // loads fs module
@@ -78,7 +78,7 @@ console.log(fileContent);   // logs the content of file to the console.
 > * Node runtime has several dependencies
 >   * Like V8 engine and libuv.
 > * V8 engine is what converts JavaScript code into machine code that a computer can actually understand.
-> * Libuv is used to implement server side fuctionality for node.js
+> * Libuv is used to implement server side functionality for node.js
 >   * This layer is what gives Node access to the underlying computer operating system,file system, networking, and more.
 >   * Besides that, libuv also implements two extremely important features of Node.JS which are the event loop and also the thread pool.
 >       * The event loop is responsible for handling easy tasks like executing call backs and network IO while the thread pool is for more heavy work like file access or compression etc.
@@ -95,14 +95,14 @@ console.log(fileContent);   // logs the content of file to the console.
 >   * Next all the callbacks are registered
 >   * After all that, the event loop finally starts running.
 >       * most of the work is done in event loop
->       * Eventloop is the heart of node.js
+>       * Event loop is the heart of node.js
 >   * But here is the catch, some tasks are actually too heavy. They are too expensive to be executed in the event loop because they would then block the single thread. And so, that's where the thread pool comes in.
 >   * Thread pool is also implemented in libuv
 >       * So, the thread pool gives us four additional threads that are completely separate from the main single thread.
 >       * And we can actually configure it up to 128 threads.
 >
 >>### **Important note:**
->>`The event loop can then automatically offload heavy tasks to the thread pool. And all this happens automatically behind the scenes. It's not us developers who decide what goes to thread pool and what doesn't. Now, the expensive tasks that do get offloaded are all operations dealing with files, everything related to cryptography, like caching passwords, then all compression stuff, and also DNS lookups, which basically matches web domains to their corresponding real IP addresses. So this is the stuff that would most easily block the main thread. And so, Node takes care of automatically offloading them into the thread pool, where they don't block our event loop. And that is the most importan`
+>>`The event loop can then automatically offload heavy tasks to the thread pool. And all this happens automatically behind the scenes. It's not us developers who decide what goes to thread pool and what doesn't. Now, the expensive tasks that do get offloaded are all operations dealing with files, everything related to cryptography, like caching passwords, then all compression stuff, and also DNS lookups, which basically matches web domains to their corresponding real IP addresses. So this is the stuff that would most easily block the main thread. And so, Node takes care of automatically offloading them into the thread pool, where they don't block our event loop. And that is the most important`
 > ---
 >## **Event Loop**
 >![process_and_threads](./images/eventloop1.png)
@@ -116,7 +116,7 @@ console.log(fileContent);   // logs the content of file to the console.
 >### **Event loop in detail**
 >![process_and_threads](./images/eventloop2.png)
 >   * Event loop has mainly 4 phases
->       * Each phase of event loop has it's own call back queques.
+>       * Each phase of event loop has it's own call back queues.
 >   * The first phase takes care of callbacks of expired timers, for example, from the setTimeout() function.
 >       * If a timer expires later during the time when one of the other phases are being processed, then the callback of that timer will only be called as soon as the event loop comes back to this first phase. 
 >   * Next phase is I/O polling and execution of I/O callbacks.
@@ -132,7 +132,7 @@ console.log(fileContent);   // logs the content of file to the console.
 >
 >> `nextTick()` is a function that we can use when we really, really need to execute a certain callback right after the current event loop phase. It's a bit similar to setImmediate, with the difference that setImmediate only runs after the I/O callback phase.
 >---
->## **Event Driven Archotecture**
+>## **Event Driven Architecture**
 >![process_and_threads](./images/event_driven_architecture.png)
 >
 >   * In Node, there are certain objects called event emitters that emit named events
@@ -179,23 +179,23 @@ console.log(fileContent);   // logs the content of file to the console.
 >        
 >        // const  readable = fs.createReadStream("introduction_to_nodejs.MD");
 >        // readable.on("data", chunk => {
->        //     res.write(chukc);
+>        //     res.write(chunk);
 >        // });
 >        // readable.on("end", () => {
 >        //     res.end();
 >        // });        
 >        // readable.on("error", () => {
 >        //     res.statusCode = 500;
->        //     res.end("Some error occured while reading the file.");
+>        //     res.end("Some error occurred while reading the file.");
 >        // });        
 >        
 >        
->        // Most efficeint way to write:
+>        // Most efficient way to write:
 >        const  readable = fs.createReadStream("introduction_to_nodejs.MD");
 >        readable.pipe(res);
 >        readable.on("error",()=>{
 >            res.statusCode = 500;
->            res.end("Some error occured while reading the file.");
+>            res.end("Some error occurred while reading the file.");
 >        });
 >    });
 >
@@ -236,7 +236,7 @@ console.log(fileContent);   // logs the content of file to the console.
 >#### **Step 4**: RETURNING EXPORTS
 >   * Now, it's time for the require function to actually return something.
 >   * And what it returns is the exports of the required module.
->       * These exports are stored in the module.exportsobjects.
+>       * These exports are stored in the module.exports objects.
 >#### **Step 5**: CACHING
 >   * The last step is that modules are actually cached after the first time they are loaded.
 >   * What this means is that if you require the same module multiple times, you will always get the same result.
@@ -244,7 +244,7 @@ console.log(fileContent);   // logs the content of file to the console.
 >   * In subsequent calls, the result is simply retrieved from cache.
 >
 >#### **How to create module file and export and use it in a program :**
->> ##### **Medthod 1**: when only one object is exported eg: A class. 
+>> ##### **Method 1**: when only one object is exported eg: A class. 
 >>> **testmodule.js**
 >>>```javascript
 >>>  class Calculator{
@@ -271,7 +271,7 @@ console.log(fileContent);   // logs the content of file to the console.
 >>> 12
 >>> 35
 >>>```
->> ##### **Medthod 2**: when multiple objects are exported.
+>> ##### **Method 2**: when multiple objects are exported.
 >>> **testmodule.js**
 >>>```javascript
 >>> export.add = (a,b) => a + b;
