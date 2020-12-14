@@ -1,4 +1,4 @@
-### Reference [Udemy Course](https://www.udemy.com/share/101Wv6AkUadVlUQXo=/)
+### Reference [Udemy Course](https://www.udemy.com/share/101Wv6AkUadVlUQXo=/) by [Jonas Schmedtmann](https://www.udemy.com/user/jonasschmedtmann/)
 ___
 # What is Nodejs ?
 > NodeJS is a JavaScript Runtime.
