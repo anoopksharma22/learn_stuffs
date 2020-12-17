@@ -453,3 +453,37 @@ Vue.createApp({
 > `You would ask why?`
 >
 > `* Answer is little complicated and but the simple explanation is Vue tries to reuse the components for performance but this can be issue sometime.`
+
+---
+
+> # Refs
+
+- Another way of passing values from HTML to Vue app.
+- We can use special Vue keyword `ref ` in html elements.
+- And we can access the ref using `$refs.keyWord ` in Vue app.
+- `$refs ` give the entire HTML object, so we can use any property of the HTML object. Just like event object.
+
+```html
+<input type="text" ref="inputText" />
+```
+
+```javascript
+methods:{
+  setText(){
+   this.text = this.$refs.inputText.value;
+  }
+}
+```
+
+# TODO:
+
+Hooks:
+
+- beforeCreate(){}
+- created(){}
+- beforeMount(){}
+- mounted(){}
+- beforeUpdate(){}
+- updated(){}
+- beforeUnmount(){}
+- unmounted(){}
