@@ -882,7 +882,8 @@ export default {
 
 - we can use v-bind, v-for, v-if in our custom html tag also to make props more dynamic
   - Note: key is mandatory in v-for for custom html
-    > ### Example:
+
+> ### Example:
 
 ```javascript
 // App.vue
@@ -936,7 +937,8 @@ export default {
 
 - Used to communicate from child to parent.
 - Custom event can be emitted using `$emit` keyword.
-  > ## Eample:
+
+> ## Eample:
 
 ```javascript
 // child
