@@ -487,3 +487,528 @@ Hooks:
 - updated(){}
 - beforeUnmount(){}
 - unmounted(){}
+
+---
+
+# **Components**
+
+- Used when we want to reuse html blocks.
+- Divide big application in smaller components.
+
+> ## How to add a simple component
+
+```javascript
+app = Vue.createApp({});
+
+app.component("custom_html_tag", {
+  template: `
+  <ul>
+    <li v-for="goal in goals"> {{ goal }}</li>
+  </ul>
+  `,
+  data() {
+    return {};
+  },
+  methods: {},
+});
+
+app.mount("#someid");
+```
+
+```html
+<section id="someid">
+  <custom_html_tag> </custom_html_tag>
+</section>
+```
+
+- To add a component we can define `app.component('tag',{})`
+- It takes two arguments
+  1. custom html tag: This tag should not match any standard html tag, hence it is recommend to use two word in the name because all standard html tag are single word.
+  2. Seconde argument is an object just like we pass to createApp. One important difference is, the `template ` is must.
+
+---
+
+# Vue CLI
+
+#Install vue cli with below command
+
+```bash
+sudo npm install -g @vue/cli
+
+vue create <vue project name>
+# eg:
+# vue create vue-first-project
+# it will present a bunch of options, select as required and continue
+
+cd vue-first-project
+
+npm run server # this will start a local server for vue project.
+```
+
+> ## Project structure ( minimal structure )
+
+```bash
+> vue-first-project  #main project directory
+  |
+  > node_modules #all dependencies will be installed here
+  |
+  > public  # All static files for website
+  |   |
+  |   index.html   # the file which will contain vue app.
+  > src            # main working directory, contains code of application
+  |   |
+  |   main.js
+  |   |
+  |   assets
+  |   |
+  |   components   # components of vue app
+  |   |
+  |   App.vue  # main vue app
+  |
+  > package.json  # defines all dependencies and scripts to run.
+
+```
+
+---
+
+### Structure of **`.vue`** files
+
+```javascript
+//file name App.vue or ComponentName.vue
+<template>
+  // html template
+
+</template>
+
+<script>
+  // default export
+  export default{
+
+      data{
+        return{
+          // data elements
+        }
+      },
+      methods:{
+        // methods
+      },
+      computed:{
+        // computed methods
+      },
+      watch:{
+        // data watchers
+      }
+
+  }
+</script>
+
+<style>
+
+
+</style>
+```
+
+> # How it works?
+>
+> Consider below project for example.
+
+```bash
+vue-cli-01-a-new-vue-project
+├── package-lock.json
+├── package.json
+├── public
+│   ├── favicon.ico
+│   └── index.html
+└── src
+    ├── App.vue
+    ├── component
+    │   └── FriendContact.vue
+    └── main.js
+```
+
+- ### There are four main files:
+
+  1. public/index.html `( main index file )`
+  1. App.vue `(main vue app file)`
+  1. component/FriendContact.vue `( vue component file)`
+  1. main.js `( main javascript file)`
+
+> ### index.html
+>
+> - The index file just holds the div where vue app will be mounted.
+
+```html
+<!-- index.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <link rel="icon" href="<%= BASE_URL %>favicon.ico" />
+    <title><%= htmlWebpackPlugin.options.title %></title>
+  </head>
+  <body>
+    <noscript>
+      <strong
+        >We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work
+        properly without JavaScript enabled. Please enable it to
+        continue.</strong
+      >
+    </noscript>
+    <div id="app"></div>
+    <!-- built files will be auto injected -->
+  </body>
+</html>
+```
+
+> ### App.vue
+>
+> - Main vue app where we add multiple components
+
+```javascript
+// App.vue
+
+<template>
+  <section>
+    <h2>My friends</h2>
+    <ul>
+      <friend-contact></friend-contact>
+    </ul>
+  </section>
+</template>
+
+<script>
+  export default {
+    data() {
+      return {};
+    },
+  };
+</script>
+```
+
+> ### FriendContact.vue
+>
+> - Vue Component
+
+```javascript
+//FriendContact.vue
+
+<template>
+  <li>
+    <h2>{{ friend.name }}</h2>
+    <button @click="toggleDetails">Show</button>
+    <ul v-if="detailsAreVisible">
+      <li>Phone: {{ friend.phone }}</li>
+      <li>email: {{ friend.email }}</li>
+    </ul>
+  </li>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      detailsAreVisible: false,
+      friend: {
+        id: "Anoop",
+        name: "Anoop Sharma",
+        phone: "7276002227",
+        email: "anoop@localhost.com",
+      },
+    };
+  },
+  methods: {
+    toggleDetails() {
+      this.detailsAreVisible = !this.detailsAreVisible;
+    },
+  },
+};
+</script>
+
+```
+
+> ### main.js
+>
+> - Main javascript files which binds everything together.
+> - We import createApp from vue module.
+> - Then App.vue is imported.
+> - Then components are imported.
+> - The we create our Vue app using `createApp();`
+>   - createApp takes our main vue App as argument.
+> - Then we add out component to our app using `app.component("custom-html-tag",Component);`
+>   - this custome html tag will used in our main vue app template to place our component there.
+> - Finally we mount the app to our index.html.
+
+```javascript
+//main.js
+
+import { createApp } from "vue";
+import App from "./App.vue";
+import FriendContact from "./component/FriendContact.vue";
+
+const app = createApp(App);
+app.component("friend-contact", FriendContact);
+app.mount("#app");
+```
+
+---
+
+# PROPS
+
+> - Used to pass data from parent to child
+>   - App.vue -> FriendContact.vue
+> - Note: Data flow is unidirectional ie. child cannot modify the data passed to it.
+>   > ### Supported prop values:
+>   >
+>   > ***
+>   >
+>   > String
+>   >
+>   > Number
+>   >
+>   > Boolean
+>   >
+>   > Array
+>   >
+>   > Object
+>   >
+>   > Date
+>   >
+>   > Function
+>   >
+>   > Symbol
+
+```javascript
+//simplest form
+prop : [ name , phoneNumber, emailAddress ]
+
+// with type validation
+prop : {
+  name : String,
+  phoneNumber: String,
+  emailAddress: String
+}
+
+// with type required, default and validator function
+prop : {
+  name : {
+    type: String,
+    required: true
+  },
+  phoneNumber: {
+    type : String,
+    required: true
+  },
+  emailAddress:{
+    type: String,
+    required: false,
+    default: "dummy@localhost.com" //  this can also be function.
+    validator: function(value){
+      return value.match(/^.*?@[a-z]+\.[a-z]+$/);
+    }
+  }
+}
+
+
+```
+
+> ### Example:
+
+```javascript
+// App.vue
+
+<template>
+  <section>
+    <h2>My friends</h2>
+    <ul>
+    <!-- Here we will define custom attributes to our custom html tag and pass our values to component. -->
+      <friend-contact>
+        name="Anoop" phone-number="7276002227"
+        email-address="anoop@localhost.com"
+      </friend-contact>
+    </ul>
+  </section>
+</template>
+
+```
+
+```javascript
+//FriendContact.vue
+
+<template>
+
+// we can use props attributes just like data attributes ie without this keyword.
+
+  <li>
+    <h2>{{ name }}</h2>
+    <button @click="toggleDetails">Show</button>
+    <ul v-if="detailsAreVisible">
+      <li>Phone: {{ phoneNumber }}</li>
+      <li>email: {{ emailAddress }}</li>
+    </ul>
+  </li>
+</template>
+
+<script>
+export default {
+
+  // Here we define prop and make aware vue aap that this child will receive below attributes from it's parent which is App.vue/
+
+  // Note: in props we use camel case but in html we use kebab case, vue converts these internally.
+
+  // Pros name should not be same as any data attribute.
+
+  prop:[
+    name, phoneNumner, emailAddress
+  ]
+  data() {
+    return {
+      detailsAreVisible: false,
+    };
+  },
+  methods: {
+    toggleDetails() {
+      this.detailsAreVisible = !this.detailsAreVisible;
+    },
+  },
+};
+</script>
+
+```
+
+> ## Dynamic props
+
+- we can use v-bind, v-for, v-if in our custom html tag also to make props more dynamic
+  - Note: key is mandatory in v-for for custom html
+    > ### Example:
+
+```javascript
+// App.vue
+
+<template>
+  <section>
+    <h2>My friends</h2>
+    <ul>
+    <!-- Here we will define custom attributes to our custom html tag and pass our values to component. -->
+      <friend-contact v-for="friend in friends"
+      :key="friend.id"
+      :name="friend.name"
+      :phone-number="friend.phone"
+      :email-address="friend.email"
+      ></friend-contact>
+    </ul>
+  </section>
+</template>
+
+<script>
+  data(){
+    return{
+        friends :[
+          {
+            id:"anoop",
+            name: "Anoop sharma",
+            phone: "7276002227,
+            email: "anoop@local.com"
+          },
+          {
+            id: "Sumit",
+            name: "Sumit Kumar",
+            phone: "9876543210,
+            email: "sumit@local.com"
+          }
+
+        ]
+
+    }
+
+  }
+</script>
+
+```
+
+---
+
+# Emitting custom events ( child -> parent )
+
+> `this.$emit('custom-event-name');` Note: here only kebab case is used.
+
+- Used to communicate from child to parent.
+- Custom event can be emitted using `$emit` keyword.
+  > ## Eample:
+
+```javascript
+// child
+
+<template>
+......
+......
+</template>
+
+<script>
+export default {
+  props: ....,
+  emits:['toggle-visibility'], // optional to consolidate all emits at one place
+
+  // Below is another way of defining the emits with validation.
+  // Note: the function passed here a validation function for the event, this not the function which will run on this event.
+  // emits:{
+  //   'toggle-visibility':function(id){
+  //     if(id){
+  //       return true;
+  //     }
+  //     else{
+  //       console.warn("Id is missing");
+  //     }
+
+  //   }
+  // },
+  data() {
+   .....
+  },
+  methods: {
+    toggleDetails() {
+      this.detailsAreVisible = !this.detailsAreVisible;
+      this.$emit('toggle-visibility'); // at least one argument needed, which is name of custom event. And we can listen to this event in parent.
+
+    },
+  },
+};
+</script>
+```
+
+```javascript
+// parent
+
+<template>
+  <section>
+    <h2>My friends</h2>
+    <ul>
+      <!-- Here we will define custom attributes to our custom html tag and pass our values to component. -->
+      <friend-contact
+        v-for="friend in friends"
+        :key="friend.id"
+        :name="friend.name"
+        :phone-number="friend.phone"
+        :email-address="friend.email"
+        @toggle-visibility="someFunction"
+      ></friend-contact>
+    </ul>
+  </section>
+</template>
+<script>
+export default{
+  methods:{
+    someFunction(){
+      .....
+    }
+  }
+}
+</script>
+```
+
+# TODO
+
+provide
+inject
