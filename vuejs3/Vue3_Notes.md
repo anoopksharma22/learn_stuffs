@@ -666,23 +666,429 @@ or
 
 ---
 
-> # TODO:
-
 # Component communication
 
-### Props
+> ## There are two ways of doing it
 
-### emits
+### 1. PROPS and EMITS
 
-### provide and Inject
+### 2. PROVIDE and INJECT
 
-### events
+> ## props
 
-### Slots
+- There are two ways to pass props, static and dynamic
 
-### Dynamic components
+> ### **props** Example 1 : Static props
 
-### Keep alive
+```javascript
+// App.vue
+
+<template>
+  <section>
+    <h2>My friends</h2>
+    <ul>
+    <!-- Here we will define custom attributes to our custom html tag and pass our values to component. -->
+    <!-- In blow example name phone-number and email are props -->
+      <friend-contact>
+        name="Anoop" phone-number="7276002227"
+        email-address="anoop@localhost.com"
+      </friend-contact>
+    </ul>
+  </section>
+</template>
+
+```
+
+```javascript
+//FriendContact.vue
+
+<template>
+
+// we can use props attributes just like data attributes ie without this keyword.
+
+  <li>
+    <h2>{{ name }}</h2>
+    <button @click="toggleDetails">Show</button>
+    <ul v-if="detailsAreVisible">
+      <li>Phone: {{ phoneNumber }}</li>
+      <li>email: {{ emailAddress }}</li>
+    </ul>
+  </li>
+</template>
+
+<script>
+export default {
+
+  // Here we define prop and make aware vue aap that this child will receive below attributes from it's parent which is App.vue/
+
+  // Note: in props we use camel case but in html we use kebab case, vue converts these internally.
+
+  // Pros name should not be same as any data attribute.
+
+  prop:[
+    name, phoneNumner, emailAddress
+  ],
+  data() {
+    return {
+      detailsAreVisible: false,
+    };
+  },
+  methods: {
+    toggleDetails() {
+      this.detailsAreVisible = !this.detailsAreVisible;
+    },
+  },
+};
+</script>
+
+```
+
+> ### **props** Example 1 : Dynamic props
+
+- we can use v-bind, v-for, v-if in our custom html tag also to make props more dynamic
+  - Note: key is mandatory in v-for for custom html
+
+```javascript
+// App.vue
+
+<template>
+  <section>
+    <h2>My friends</h2>
+    <ul>
+    <!-- Here we will define custom attributes to our custom html tag and pass our values to component. -->
+      <friend-contact v-for="friend in friends"
+      :key="friend.id"
+      :name="friend.name"
+      :phone-number="friend.phone"
+      :email-address="friend.email"
+      ></friend-contact>
+    </ul>
+  </section>
+</template>
+
+<script>
+  data(){
+    return{
+        friends :[
+          {
+            id:"anoop",
+            name: "Anoop sharma",
+            phone: "7276002227,
+            email: "anoop@local.com"
+          },
+          {
+            id: "Sumit",
+            name: "Sumit Kumar",
+            phone: "9876543210,
+            email: "sumit@local.com"
+          }
+
+        ]
+
+    }
+
+  }
+</script>
+
+```
+
+---
+
+> ## EMITS
+
+> ### **emits** Example 1 : custom events ( child -> parent )
+
+- `this.$emit('custom-event-name');` Note: here only kebab case is used.
+- Used to communicate from child to parent.
+- Custom event can be emitted using `$emit` keyword.
+
+> ### Example:
+
+```javascript
+// parent
+
+<template>
+// we can listen to our custom event here @custom-event-name or  v-on="custom-event-name"
+  <section>
+    <h2>My friends</h2>
+      <ul>
+        <friend-contact
+          v-for="friend in friends"
+          :key="friend.id"
+          :name="friend.name"
+          :phone-number="friend.phone"
+          :email-address="friend.email"
+          @toggle-visibility="someFunction"
+        ></friend-contact>
+    </ul>
+  </section>
+</template>
+<script>
+export default{
+  methods:{
+    someFunction(){
+      .....
+    }
+  }
+}
+</script>
+```
+
+```javascript
+// child
+
+<template>
+......
+......
+</template>
+
+<script>
+export default {
+  props: ....,
+  emits:['toggle-visibility'], // optional to consolidate all emits at one place
+
+  // Below is another way of defining the emits with validation.
+  // Note: the function passed here a validation function for the event, this not the function which will run on this event.
+  // emits:{
+  //   'toggle-visibility':function(id){
+  //     if(id){
+  //       return true;
+  //     }
+  //     else{
+  //       console.warn("Id is missing");
+  //     }
+
+  //   }
+  // },
+  data() {
+   .....
+  },
+  methods: {
+    toggleDetails() {
+      this.detailsAreVisible = !this.detailsAreVisible;
+      this.$emit('toggle-visibility'); // at least one argument needed, which is name of custom event. And we can listen to this event in parent.
+
+    },
+  },
+};
+</script>
+```
+
+---
+
+> ## provide and inject
+
+- Usually, when we need to pass data from the parent to child component, we use props. Imagine the structure where you have some deeply nested components and you only need something from the parent component in the deep nested child. In this case, you still need to pass the prop down the whole component chain which might be annoying.
+- For such cases, we can use the provide and inject pair. Parent components can serve as dependency provider for all its children, regardless how deep the component hierarchy is. This feature works on two parts: parent component has a provide option to provide data and child component has an inject option to start using this data.
+
+* Functions can also be provided and injected.
+  > ### Example:
+
+```javascript
+// parent
+
+<script>
+  export default {
+      data(){
+        return{
+            friends :[
+              {
+                id:"anoop",
+                name: "Anoop sharma",
+                phone: "9876543210,
+                email: "anoop@local.com"
+              },
+              {
+                id: "Sumit",
+                name: "Sumit Kumar",
+                phone: "9876543210,
+                email: "sumit@local.com"
+              }
+
+            ]
+
+        }
+    },
+
+    // if we simply want to provide some independent of any data property then
+
+    provide:[
+      friend_name = "Anoop",
+      friend_phone = "9876543210"
+    ]
+
+    // if we want to provide some data attribute then provide becomes a function and we can use data items using this keyword.
+
+    provide(){
+      friend_list = this.friends,
+    }
+ }
+</script>
+```
+
+```javascript
+// child
+
+<template>
+........
+</template>
+
+<script>
+ export default{
+
+   // injected attributes can now be used in template
+   // 1st example.
+   inject:[friend_name,friend_phone,]
+
+   // 2nd example
+   inject:[friend_list]
+
+ }
+</script>
+
+```
+
+---
+
+> ## Slots
+
+- Reusable component used as a wrapper.
+- It works same as prop but just for html content with vue features.
+
+* If only one slot is defined on template then that slot will be default slot, whatever html is passed will be displayed there.
+* For more than one slot we need to define slot name, using name attribute
+* There can be only one unnamed slot.
+* To pass value to a named slot we use `<template>` html tag with `v-slot:slotname `
+* To send value to default slot we can use `v-slot:default`
+* $slot.slotname can be used to check if values are being passed to the slot or not eg: v-if="$slot.Paragraph"
+* Shorthand for v-slot is `#slot-name `
+
+```javascript
+// slot component
+// let's say file name is BaseCard.vue
+<template>
+  <div>
+    <slot></slot>
+  </div>
+  <div>
+    <slot name="Paragraph"></slot>
+  </div>
+</template>
+
+<style scoped>
+
+</style>
+```
+
+```javascript
+// component where slot is used.
+
+<template>
+  <base-card>
+    <h1>Heading</h1>
+    <template v-slot:Paragraph>
+      <p>Some statement </p>
+    </template>
+  </base-card>
+</template>
+<script>
+import 'BaseCard' from './components/BaseCard.vue';
+
+export default{
+  components: { BaseCard },
+}
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+---
+
+> ## Dynamic components
+
+- Used to show any one component based on any condition
+- <component v-bind:is="component-to-show"></component>
+- the value component-to-show can be manipulated by some function.
+
+```javascript
+<template>
+  <component v-bind:is="component-to-show"></component>
+</template>
+```
+
+> ### Keep alive
+
+- used to keep state of dynamic component alive.
+- Let's say we have an input field in component-to-show in below example, now if we change the page or the component re re-build and hence data entered in input field is lost. To solve this problem we can tell vue to keep the component alive.
+
+```javascript
+<template>
+  <keep-alive>
+    <component v-bind:is="component-to-show"></component>
+  </keep-slive>
+</template>
+```
+
+---
+
+> # Handling forms
+
+> ## v-model
+
+- v-model.number : Explicitly convert any text input type to number.
+- v-model.lazy : Tell vue not to listen on each key press.
+- v-model.trim : Trim empty spaces around the input.
+
+> ## ref
+
+- Value accessible after submit.
+- value is retrieved using `$ref.target.value `
+- Value retrieved is always a text.
+
+> ## @input="someFunctionName"
+
+- We can define a function to trigger on each input.
+
+---
+
+> # Sending https requests
+
+> ## fetch()
+
+- Sends http request behind the scene.
+
+> ### POST
+
+```javascript
+fetch('url',{
+  method: POST',
+  headers:{
+    'Content-type: 'application/json'
+  },
+  body: JSON.stringify({ name: this.name, rating: this.userRating})
+});
+```
+
+> ### GET
+
+- fetch returns a promise.
+
+```javascript
+fetch("url")
+  .then( (response) => {
+    if (response.ok) {
+      return response.json(); // this also returns a promise
+    }
+  })
+  .then((data) => {
+    consol.log(data);
+  });
+```
+
+---
 
 ### Teleporting Elements
 
@@ -694,10 +1100,6 @@ or
 
 ### Animation and transitions
 
-## Handling forms
-
-## Sending https requests
-
 # Vue Router
 
 # Vuex ( state management)
@@ -707,3 +1109,7 @@ or
 # Functionality reuse Mixins
 
 # Composition API
+
+```
+
+```
