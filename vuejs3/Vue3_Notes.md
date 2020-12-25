@@ -332,6 +332,88 @@ prop : {
 
 ---
 
+# Vue CLI
+
+#Install vue cli with below command
+
+```bash
+sudo npm install -g @vue/cli
+
+vue create <vue project name>
+# eg:
+# vue create vue-first-project
+# it will present a bunch of options, select as required and continue
+
+cd vue-first-project
+
+npm run server # this will start a local server for vue project.
+```
+
+> ## Project structure ( minimal structure )
+
+```bash
+> vue-first-project  #main project directory
+  |
+  > node_modules #all dependencies will be installed here
+  |
+  > public  # All static files for website
+  |   |
+  |   index.html   # the file which will contain vue app.
+  > src            # main working directory, contains code of application
+  |   |
+  |   main.js
+  |   |
+  |   assets
+  |   |
+  |   components   # components of vue app
+  |   |
+  |   App.vue  # main vue app
+  |
+  > package.json  # defines all dependencies and scripts to run.
+
+```
+
+---
+
+### Structure of **`.vue`** files
+
+```javascript
+//file name App.vue or ComponentName.vue
+<template>
+  // html template
+
+</template>
+
+<script>
+  // default export
+  export default{
+
+      data{
+        return{
+          // data elements
+        }
+      },
+      methods:{
+        // methods
+      },
+      computed:{
+        // computed methods
+      },
+      watch:{
+        // data watchers
+      }
+
+  }
+</script>
+
+<style>
+
+
+</style>
+```
+
+---
+
 > # How it works?
 >
 > Consider below project for example.
@@ -1034,6 +1116,20 @@ export default{
 
 ---
 
+> ## Teleporting Elements
+
+- Move elements up or down the hierarchy
+- Eg: move a conditional modal window up in the dom
+
+```javascript
+<teleport to="css-selector-where-we-want-to-render-the-element">
+  <error-alert>
+    <h2>Error</h2>
+    <p>Some error occurred</p>
+  </error-alert>
+</teleport>
+```
+
 > # Handling forms
 
 > ## v-model
@@ -1078,7 +1174,7 @@ fetch('url',{
 
 ```javascript
 fetch("url")
-  .then( (response) => {
+  .then((response) => {
     if (response.ok) {
       return response.json(); // this also returns a promise
     }
@@ -1090,7 +1186,478 @@ fetch("url")
 
 ---
 
-### Teleporting Elements
+> # Vue Router
+
+- To make "multi-page" single page-apps.
+- Web server will send only one index file, later multiple pages (urls) will be served by vue.
+
+```bash
+npm install --save vue-router
+```
+
+```javascript
+//main.js
+
+import { createRouter, createWebHistory } from "vue-router";
+import ComponentTeam from "./components/ComponentTeam.vue";
+import ComponentUser from "./components/ComponentUser.vue";
+
+const router = createRouter({
+  history: createWebHistory(), // to manage history
+
+  // each route will be an object
+  routes: [
+    { path: "/teams", component: ComponentTeam },
+    { path: "/user", component: ComponentUser },
+  ],
+});
+
+const app = createApp(App);
+app.use(router);
+```
+
+```javascript
+//ComponentTeam.vue
+
+<template>
+  <router-view></router-view>
+<template>
+
+```
+
+> ### Navigate with router link
+
+```javascript
+<template>
+  <ul>
+    <li>
+      <router-link to="/teams">Teams</router-link>
+    </li>
+    <li>
+      <router-link to="/teams">Teams</router-link>
+    </li>
+  </ul>
+</template>
+```
+
+> ### Styling router links
+
+Two classes are automatically added to router links which we can use to style links.
+
+- router-link-active : matches /teams/\*
+- router-link-active-exact: matches exactly /teams
+
+> ### Programmatic Navigation
+
+- Basically redirection
+
+```javascript
+this.$router.push("/teams"); // redirect to /teams
+this.$router.forward(); //emulates forward in browser
+this.$router.back(); // emulates back in browser
+```
+
+> ### Passing data with route
+
+```javascript
+  routes: [
+    { path: "/teams/:teamId", component: ComponentTeamMembers, props: true },
+  ],
+  // setting props are true will send the parameters as props
+});
+
+```
+
+```javascript
+//ComponentTeamMembers.vue
+props:['teamId'],
+created(){
+
+  const teamId = this.$route.params.teamId;
+
+}
+
+```
+
+> ### Redirection and handling undefined routes
+
+```javascript
+//main.js
+
+  // each route will be an object
+  routes: [
+    { path: "/", redirect: '/teams'},   // redirects to /teams if not routes specified.
+    { path: "/teams", component: ComponentTeam, alias : '/teamssss' }, // create alias anc can be accessed with alias route as well
+    { path: "/user", component: ComponentUser },
+    { path: '/:notFound(.*)', component: NotFound } // matches anything and loads NotFound, hence it should be defined at last.
+  ],
+});
+
+```
+
+> ### Redirection and handling undefined routes
+
+```javascript
+//main.js
+
+  // each route will be an object
+  routes: [
+    { path: "/", redirect: '/teams'},   // redirects to /teams if not routes specified.
+    { path: "/teams", component: ComponentTeam, alias : '/teamssss' }, // create alias anc can be accessed with alias route as well
+    { path: "/user", component: ComponentUser },
+    { path: '/:notFound(.*)', component: NotFound } // matches anything and loads NotFound, hence it should be defined at last.
+  ],
+});
+
+```
+
+> ### Nested routes
+
+```javascript
+//main.js
+
+  // each route will be an object
+  routes: [
+    { path: "/", redirect: '/teams'},
+    { path: "/teams", component: ComponentTeam, children :{
+      {path:":teamId",component: ComponentTeamMembers, props: true }
+    }},
+
+  ],
+});
+
+```
+
+> ### Names routes
+
+```javascript
+//main.js
+
+  // each route will be an object
+  routes: [
+    {name: "teams", path: "/teams", component: ComponentTeam, children :{
+      {name:"team-members", path:":teamId",component: ComponentTeamMembers, props: true }
+    }},
+
+  ],
+});
+
+// ComponentTeam.vue
+// now we can pass  object to  "to" in router link
+<router-link :to="teamMemberLink">Teams</router-link>
+
+..
+
+computed:{
+  teamMemberLink(){
+    return { name:'team-members' , params: {teamId: this.id}};
+  }
+}
+
+
+```
+
+> ### Rendering multiple components
+
+```javascript
+//main.js
+
+  routes: [
+    {name: "teams", path: "/teams", components:{ default: ComponentTeam, footer: TeamFooter}, children :{
+      {name:"team-members", path:":teamId",component: ComponentTeamMembers, props: true }
+    }},
+
+  ],
+});
+
+
+// Now we can define multiple router-vie w
+<router-view></router-view> // default
+<router-view name="footer"></router-view>
+
+```
+
+> ### Scroll behavior
+
+- Jump to top on page reload.
+- Goto same location on a page when moving forward and backwards.
+
+```javascript
+const router = createRouter({
+  history: createWebHistory(), // to manage history
+
+  // each route will be an object
+  routes: [
+    { path: "/teams", component: ComponentTeam },
+    { path: "/user", component: ComponentUser },
+  ],
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition; //Goto same location on a page when moving forward and backwards
+    }
+    return { left: 0, top: 0 }; // Jump to top on page reload.
+  },
+});
+```
+
+> ### Navigation Guard
+
+- can be used to check authentication is user before redirection to any page
+
+> #### Global Guard
+
+```javascript
+router.beforeEach(function (to, from, next) {
+  // do something here before navigation
+
+  // navigate
+  next();
+
+  // deny navigate
+  next(false);
+
+  // force navigation to
+  next("/route"); // named routes can also be used.
+});
+```
+
+> #### local or individual Guard
+
+```javascript
+  routes: [
+    { path: "/teams", component: ComponentTeam },
+    beforeEnter(to,from,next){
+      next();
+    }
+
+  ],
+
+```
+
+> #### other route related hooks
+
+```javascript
+// defined on a component. which runs before routing the component where it is defined.
+beforeRouteEnter(to,from,next){}
+
+// defined on a component, which is called when ever the component is being reused with changed data.
+beforeRoueUpdate(to,from,next){}
+
+// defined on a component called before leaving a component. Can be used to check for any unsaved data and warn user.
+beforeRouteLeave(to,from,next){}
+
+
+// AfterEach is a global guard, which run after navigation is done. Can we used for logging etc.
+// this cannot deny the navigation hence there is no next parameter associated with it.
+router.afterEach(function(to,from){});
+```
+
+> #### Route metadata
+
+- we can pass extra information in route using metadata.
+- The metadata can be used in conjunction with route guards, for example information to specify whether auth is needed for a particular route.
+
+```javascript
+  routes: [
+    {
+      path: "/teams", component: ComponentTeam ,meta:{needAuth: true}}
+    }],
+
+```
+
+---
+
+# Vuex ( state management )
+
+- state : data ( reactive data )
+- Two types of stated
+  1. Local state
+  2. Global state
+
+```bash
+npm install --save vuex
+```
+
+```javascript
+import { createApp } from "vue";
+import { createStore } from "vuex";
+
+import App from "./App.vue";
+
+const counterModule = {
+  namespaced: true,
+  state() {
+    return {
+      counter: 0,
+    };
+  },
+  mutations: {
+    increment(state) {
+      state.counter = state.counter + 2;
+    },
+    increase(state, payload) {
+      console.log(state);
+      state.counter = state.counter + payload.value;
+    },
+  },
+  actions: {
+    increment(context) {
+      setTimeout(function () {
+        context.commit("increment");
+      }, 2000);
+    },
+    increase(context, payload) {
+      console.log(context);
+      context.commit("increase", payload);
+    },
+    login() {},
+  },
+  getters: {
+    testAuth(state) {
+      return state.isLoggedIn;
+    },
+    finalCounter(state) {
+      return state.counter * 3;
+    },
+    normalizedCounter(_, getters) {
+      const finalCounter = getters.finalCounter;
+      if (finalCounter < 0) {
+        return 0;
+      }
+      if (finalCounter > 100) {
+        return 100;
+      }
+      return finalCounter;
+    },
+  },
+};
+
+const store = createStore({
+  modules: {
+    numbers: counterModule,
+  },
+  state() {
+    return {
+      isLoggedIn: false,
+    };
+  },
+  mutations: {
+    setAuth(state, payload) {
+      state.isLoggedIn = payload.isAuth;
+    },
+  },
+  actions: {
+    login(context) {
+      context.commit("setAuth", { isAuth: true });
+    },
+    logout(context) {
+      context.commit("setAuth", { isAuth: false });
+    },
+  },
+  getters: {
+    userIsAuthenticated(state) {
+      return state.isLoggedIn;
+    },
+  },
+});
+
+const app = createApp(App);
+
+app.use(store);
+
+app.mount("#app");
+```
+
+```javascript
+<template>
+  <button @click="login" v-if="!isAuth">Login</button>
+  <button @click="logout" v-if="isAuth">Logout</button>
+  <p>{{ isTestAuth }}</p>
+</template>
+
+<script>
+export default {
+  methods: {
+    login() {
+      this.$store.dispatch('login');
+    },
+    logout() {
+      this.$store.dispatch('logout');
+    }
+  },
+  computed: {
+    isAuth() {
+      return this.$store.getters.userIsAuthenticated;
+    },
+    isTestAuth() {
+      return this.$store.getters.testAuth;
+    }
+  }
+}
+</script>
+```
+
+```javascript
+<template>
+  <h3>{{ finalCounter }}</h3>
+</template>
+
+<script>
+import { mapGetters } from 'vuex';
+
+export default {
+  computed: {
+    // counter() {
+    //   return this.$store.getters.finalCounter;
+    // },
+    ...mapGetters('numbers', ['finalCounter'])
+  },
+};
+</script>
+```
+
+```javascript
+<template>
+  <h3>{{ counter }}</h3>
+  <p>We do more...</p>
+</template>
+
+<script>
+export default {
+  computed: {
+    counter() {
+      return this.$store.getters['numbers/normalizedCounter'];
+    },
+  },
+};
+</script>
+```
+
+```javascript
+<template>
+  <button @click="inc">Add 2</button>
+  <button @click="increase({value: 11})">Add 11</button>
+</template>
+
+<script>
+import { mapActions } from 'vuex';
+
+export default {
+  methods: {
+    // addOne() {
+    //   this.$store.dispatch('increment');
+    // }
+    // ...mapActions(['increment', 'increase'])
+    ...mapActions('numbers', {
+      inc: 'increment',
+      increase: 'increase'
+    })
+  }
+}
+</script>
+```
+
+---
 
 ## How to Add html
 
@@ -1099,10 +1666,6 @@ fetch("url")
 ### How to add dynamic classes
 
 ### Animation and transitions
-
-# Vue Router
-
-# Vuex ( state management)
 
 # Vue Authentication
 
